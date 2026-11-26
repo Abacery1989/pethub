@@ -100,5 +100,10 @@ header.top{background:#ffffffd9;backdrop-filter:blur(10px);-webkit-backdrop-filt
 .pet img,.pet svg{width:100%;height:auto;display:block}
 .pet .eyes{position:absolute;inset:0;pointer-events:none}
 .pet.pcat{margin-inline-end:-6%;z-index:1}.pet.pdog{z-index:2}
-.pet.pcat{animation:float 6s ease-in-out infinite}.pet.pdog{animation:float 7s ease-in-out infinite;animation-delay:-2s}
+.pet.pcat .pi{animation:float 6s ease-in-out infinite}.pet.pdog .pi{animation:float 7s ease-in-out infinite;animation-delay:-2s}
 @media(max-width:700px){.hero{flex-direction:column;align-items:stretch}.hero .ht{padding-bottom:6px}.stage{flex-basis:auto;width:100%}}
+
+.stage{flex:0 0 40%}.pet{width:48%;will-change:transform;touch-action:manipulation}
+.pet .pi{position:relative}
+.pet.pdog{margin-inline-start:-4%}
+@media(max-width:700px){.stage{flex:0 0 auto;width:72%;margin-inline:auto}}

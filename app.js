@@ -44,20 +44,33 @@ function petHtml(n,w,h,eyes,kind){
   const cat=kind==='cat',R=cat?12.6:7.4;
   const g=eyes.map((e,k)=>`<g clip-path="url(#cl-${n}${k})"><circle cx="${e[0]}" cy="${e[1]}" r="${R+1}" fill="url(#ir-${n})"/><g class="pu" data-cx="${e[0]}" data-cy="${e[1]}" data-max="${cat?4.5:2.6}">${cat?`<ellipse cx="${e[0]}" cy="${e[1]}" rx="3.2" ry="9.6" fill="#0b0805"/>`:`<circle cx="${e[0]}" cy="${e[1]}" r="4.6" fill="#050302"/>`}<circle class="hl" cx="${e[0]-2.2}" cy="${e[1]-3.2}" r="${cat?2.1:1.7}" fill="#fff" opacity=".9"/></g></g>`).join('');
   const defs=eyes.map((e,k)=>`<clipPath id="cl-${n}${k}"><circle cx="${e[0]}" cy="${e[1]}" r="${R+1}"/></clipPath>`).join('')+`<radialGradient id="ir-${n}"><stop offset="0" stop-color="${cat?'#d7cf6a':'#6a3f24'}"/><stop offset=".75" stop-color="${cat?'#a39a3c':'#3d2315'}"/><stop offset="1" stop-color="${cat?'#6f6a2a':'#241209'}"/></radialGradient>`;
-  return `<img src="${n}.webp" alt="${cat?'قطة':'كلب'}" width="${w}" height="${h}" fetchpriority="high"><svg class="eyes" viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs>${defs}</defs>${g}</svg>`;
+  return `<div class="pi"><img src="${n}.webp" alt="${cat?'قطة':'كلب'}" width="${w}" height="${h}" fetchpriority="high"><svg class="eyes" viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs>${defs}</defs>${g}</svg></div>`;
 }
 function eyeTracker(){
   const pu=[...document.querySelectorAll('.stage .pu')];if(!pu.length||window.__eyes)return;window.__eyes=1;
-  let px=null,py=null,last=0,raf=0;
+  let px=null,py=null,last=0,raf=0,pt='mouse',tt=0;
   const set=(x,y)=>{px=x;py=y;last=performance.now()};
-  addEventListener('pointermove',e=>set(e.clientX,e.clientY),{passive:true});
-  addEventListener('touchmove',e=>{const t=e.touches[0];if(t)set(t.clientX,t.clientY)},{passive:true});
-  addEventListener('touchstart',e=>{const t=e.touches[0];if(t)set(t.clientX,t.clientY)},{passive:true});
+  addEventListener('pointermove',e=>{pt=e.pointerType==='mouse'?'mouse':'touch';if(pt==='touch')tt=performance.now();set(e.clientX,e.clientY)},{passive:true});
+  addEventListener('touchmove',e=>{const t=e.touches[0];if(t){pt='touch';tt=performance.now();set(t.clientX,t.clientY)}},{passive:true});
+  addEventListener('touchstart',e=>{const t=e.touches[0];if(t){pt='touch';tt=performance.now();set(t.clientX,t.clientY)}},{passive:true});
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   function tick(t){
     const els=[...document.querySelectorAll('.stage .pu')];
     if(!els.length){window.__eyes=0;return}
     const idle=performance.now()-last>3000||px===null;
+    document.querySelectorAll('.stage .pet').forEach(p=>{
+      const r=p.getBoundingClientRect(),home=p._h||(p._h=[0,0,0]);
+      // use the un-dodged center so it does not flee forever
+      const cx=r.left+r.width/2-home[0],cy=r.top+r.height/2-home[1];
+      let tx=0,ty=0,tr=0;
+      const active=px!==null&&(pt==='mouse'?true:performance.now()-tt<900);
+      if(active&&!reduce){
+        const inside=px>cx-r.width/2-6&&px<cx+r.width/2+6&&py>cy-r.height/2-6&&py<cy+r.height/2+6;
+        if(inside){const vx=cx-px,vy=cy-py,d=Math.hypot(vx,vy)||1,k=Math.min(1,.35+(1-Math.min(d/(r.width*.7),1)));tx=vx/d*r.width*.28*k;ty=Math.min(0,vy/d*r.height*.18*k)-r.height*.04;tr=(vx>0?1:-1)*7*k}
+      }
+      home[0]+=(tx-home[0])*.14;home[1]+=(ty-home[1])*.14;home[2]+=(tr-home[2])*.14;
+      p.style.transform=`translate(${home[0].toFixed(1)}px,${home[1].toFixed(1)}px) rotate(${home[2].toFixed(2)}deg)`;
+    });
     els.forEach(el=>{
       const svg=el.ownerSVGElement,r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,s=r.width/vb.width;
       const cx=r.left+(+el.dataset.cx)*s,cy=r.top+(+el.dataset.cy)*s,max=+el.dataset.max;
