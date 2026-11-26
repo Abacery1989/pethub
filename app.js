@@ -37,7 +37,7 @@ async function load(){
 const sampleNotice=()=>PRODS.some(p=>p.is_sample)?'<div class="notice">هذا متجر تجريبي: المنتجات والأسعار المعلّمة "منتج تجريبي" أمثلة فقط.</div>':'';
 const pages={
  home(){
-  app.innerHTML=`<div class="hero"><h1>${esc(S.store_name)}</h1><p>تسوّق بسهولة، وادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div>${sampleNotice()}
+  app.innerHTML=`<div class="hero"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div>${sampleNotice()}
   <h2>التصنيفات</h2><div class="filters">${CATS.map(c=>`<a class="btn sec" href="#/products?cat=${c.id}">${esc(c.name)}</a>`).join('')}</div>
   <h2>وصل حديثاً</h2><div class="grid">${PRODS.slice(0,8).map(card).join('')||'<p>لا توجد منتجات بعد.</p>'}</div>`;
  },

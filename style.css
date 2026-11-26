@@ -1,4 +1,4 @@
-:root{--ink:#1f1b1c;--ink2:#625b5d;--line:#e9e4e2;--bg:#fff;--soft:#f7f3f1;--accent:#0f766e;--accent2:#115e59;--red:#c62828}
+:root{--ink:#1f1b1c;--ink2:#625b5d;--line:#e9e4e2;--bg:#fff;--soft:#eef4e8;--accent:#08783D;--accent2:#065f31;--red:#c62828}
 *{box-sizing:border-box}
 body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;font-size:16px}
 a{color:var(--accent);text-decoration:none}
