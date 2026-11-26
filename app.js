@@ -38,9 +38,41 @@ async function load(){
   if(S.whatsapp){const w=$('#wa');w.href='https://wa.me/'+S.whatsapp.replace(/\D/g,'');w.hidden=false}
 }
 const sampleNotice=()=>PRODS.some(p=>p.is_sample)?'<div class="notice">هذا متجر تجريبي: المنتجات والأسعار المعلّمة "منتج تجريبي" أمثلة فقط.</div>':'';
+
+function petHtml(n,w,h,eyes,kind){
+  const cat=kind==='cat',R=cat?12.6:7.4;
+  const g=eyes.map((e,k)=>`<g clip-path="url(#cl-${n}${k})"><circle cx="${e[0]}" cy="${e[1]}" r="${R+1}" fill="url(#ir-${n})"/><g class="pu" data-cx="${e[0]}" data-cy="${e[1]}" data-max="${cat?4.5:2.6}">${cat?`<ellipse cx="${e[0]}" cy="${e[1]}" rx="3.2" ry="9.6" fill="#0b0805"/>`:`<circle cx="${e[0]}" cy="${e[1]}" r="4.6" fill="#050302"/>`}<circle class="hl" cx="${e[0]-2.2}" cy="${e[1]-3.2}" r="${cat?2.1:1.7}" fill="#fff" opacity=".9"/></g></g>`).join('');
+  const defs=eyes.map((e,k)=>`<clipPath id="cl-${n}${k}"><circle cx="${e[0]}" cy="${e[1]}" r="${R+1}"/></clipPath>`).join('')+`<radialGradient id="ir-${n}"><stop offset="0" stop-color="${cat?'#d7cf6a':'#6a3f24'}"/><stop offset=".75" stop-color="${cat?'#a39a3c':'#3d2315'}"/><stop offset="1" stop-color="${cat?'#6f6a2a':'#241209'}"/></radialGradient>`;
+  return `<img src="${n}.webp" alt="${cat?'قطة':'كلب'}" width="${w}" height="${h}" fetchpriority="high"><svg class="eyes" viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs>${defs}</defs>${g}</svg>`;
+}
+function eyeTracker(){
+  const pu=[...document.querySelectorAll('.stage .pu')];if(!pu.length||window.__eyes)return;window.__eyes=1;
+  let px=null,py=null,last=0,raf=0;
+  const set=(x,y)=>{px=x;py=y;last=performance.now()};
+  addEventListener('pointermove',e=>set(e.clientX,e.clientY),{passive:true});
+  addEventListener('touchmove',e=>{const t=e.touches[0];if(t)set(t.clientX,t.clientY)},{passive:true});
+  addEventListener('touchstart',e=>{const t=e.touches[0];if(t)set(t.clientX,t.clientY)},{passive:true});
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function tick(t){
+    const els=[...document.querySelectorAll('.stage .pu')];
+    if(!els.length){window.__eyes=0;return}
+    const idle=performance.now()-last>3000||px===null;
+    els.forEach(el=>{
+      const svg=el.ownerSVGElement,r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,s=r.width/vb.width;
+      const cx=r.left+(+el.dataset.cx)*s,cy=r.top+(+el.dataset.cy)*s,max=+el.dataset.max;
+      let dx,dy;
+      if(!idle){const vx=px-cx,vy=py-cy,d=Math.hypot(vx,vy)||1,k=Math.min(d/(120*Math.max(s,.6)),1);dx=vx/d*max*k;dy=vy/d*max*k}
+      else{dx=Math.sin(t/1300)*max*.7;dy=Math.cos(t/1700)*max*.35}
+      const c=el._c||(el._c=[0,0]);c[0]+=(dx-c[0])*.18;c[1]+=(dy-c[1])*.18;
+      el.setAttribute('transform',`translate(${c[0].toFixed(2)} ${c[1].toFixed(2)})`);
+    });
+    raf=requestAnimationFrame(tick);
+  }
+  if(!reduce)raf=requestAnimationFrame(tick);
+}
 const pages={
  home(){
-  app.innerHTML=`<div class="hero"><div class="ht"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div><img class="hi" src="hero.jpg" alt="قطة وكلب" width="1000" height="667" fetchpriority="high"></div>${sampleNotice()}
+  app.innerHTML=`<div class="hero"><div class="ht"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div><div class="stage"><div class="pet cat">${petHtml('cat',386,392,[[131.5,130],[213,130]],'cat')}</div><div class="pet dog">${petHtml('dog',360,380,[[146,82.5],[236,82.5]],'dog')}</div></div></div>${sampleNotice()}
   <h2>التصنيفات</h2><div class="cats">${CATS.map(c=>`<a class="cat" href="#/products?cat=${c.id}">${ART['c-'+c.slug]?`<img src="${ART['c-'+c.slug]}" alt="" width="64" height="64">`:''}<span>${esc(c.name)}</span></a>`).join('')}</div>
   <h2>وصل حديثاً</h2><div class="grid">${PRODS.slice(0,8).map(card).join('')||'<p>لا توجد منتجات بعد.</p>'}</div>`;
  },
@@ -154,3 +186,5 @@ load().then(route).catch(e=>{app.innerHTML='<p class="err">تعذر تحميل �
  const scan=()=>document.querySelectorAll('#app h2,#app .card,#app .cat,#app .notice,#app .sum,#app details').forEach((el,i)=>{if(!el.dataset.rv){el.dataset.rv=1;el.classList.add('rv');el.style.transitionDelay=Math.min(i%4,3)*70+'ms';io.observe(el)}});
  new MutationObserver(scan).observe(document.getElementById('app'),{childList:true,subtree:true});scan();
 })();
+
+new MutationObserver(()=>{if(document.querySelector('.stage .pu'))eyeTracker()}).observe(document.getElementById('app'),{childList:true,subtree:true});
