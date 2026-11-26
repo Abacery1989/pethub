@@ -47,3 +47,10 @@ footer a{color:var(--ink2);margin-inline-end:12px}
 details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0}summary{cursor:pointer;font-weight:600}
 .status{border-radius:6px;padding:2px 8px;font-size:12px;background:var(--soft)}
 @media(max-width:700px){.detail{grid-template-columns:1fr}.two{grid-template-columns:1fr}h1{font-size:22px}}
+@media(max-width:700px){
+ .bar{gap:6px 10px;padding:8px 12px}.logo{font-size:18px;flex:1}
+ .cartlink{order:2;padding:4px 10px}.logo{order:1}
+ nav.links{order:3;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;gap:16px;white-space:nowrap}
+ .grid{grid-template-columns:repeat(2,1fr);gap:10px}.img{font-size:40px}
+ .card .body{padding:8px}.hero{padding:20px 14px}main{padding:12px 12px 60px}
+}
