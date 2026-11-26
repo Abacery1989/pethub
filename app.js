@@ -13,11 +13,14 @@ const cart={get(){try{return JSON.parse(localStorage.getItem('cart')||'[]')}catc
   add(id,q=1){const c=this.get();const i=c.find(x=>x.id===id);if(i)i.qty+=q;else c.push({id,qty:q});this.set(c)},
   setQty(id,q){let c=this.get();c.forEach(x=>{if(x.id===id)x.qty=q});c=c.filter(x=>x.qty>0);this.set(c)},
   remove(id){this.set(this.get().filter(x=>x.id!==id))},clear(){this.set([])}};
-function badge(){$('#cartcount').textContent=cart.get().reduce((a,b)=>a+b.qty,0)}
+function badge(){const e=$('#cartcount'),n=cart.get().reduce((a,b)=>a+b.qty,0);if(e.textContent!==String(n)){e.textContent=n;e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
 let S={},CATS=[],PRODS=[];
 const COLORS=['#0f766e','#b45309','#6d28d9','#be123c','#1d4ed8','#4d7c0f'];
 function imgHtml(p){
-  if(p.image_url) return `<div class="img"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"></div>`;
+  if(p.image_url) return `<div class="img"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" width="400" height="400" loading="lazy" decoding="async"></div>`;
+  const AK=[['أكل قطط','p1'],['عصا ريش','p2'],['كرات','p3'],['أكل كلاب','p4'],['عظمة','p5'],['رمل','p6'],['شامبو','p7'],['طوق','p8']];
+  const k=p.is_sample&&(AK.find(x=>(p.name||'').includes(x[0]))||[])[1];
+  if(k&&window.ART&&ART[k]) return `<div class="img"><img src="${ART[k]}" alt="${esc(p.name)}" width="400" height="400" decoding="async"></div>`;
   const i=(p.name||'?').charCodeAt(0)%COLORS.length;
   return `<div class="img" style="background:${COLORS[i]}">${esc((p.name||'?').trim().charAt(0))}</div>`;
 }
@@ -37,8 +40,8 @@ async function load(){
 const sampleNotice=()=>PRODS.some(p=>p.is_sample)?'<div class="notice">هذا متجر تجريبي: المنتجات والأسعار المعلّمة "منتج تجريبي" أمثلة فقط.</div>':'';
 const pages={
  home(){
-  app.innerHTML=`<div class="hero"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div>${sampleNotice()}
-  <h2>التصنيفات</h2><div class="filters">${CATS.map(c=>`<a class="btn sec" href="#/products?cat=${c.id}">${esc(c.name)}</a>`).join('')}</div>
+  app.innerHTML=`<div class="hero"><div class="ht"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div><img class="hi" src="${ART.hero}" alt="قطة وكلب" width="640" height="320" fetchpriority="high"></div>${sampleNotice()}
+  <h2>التصنيفات</h2><div class="cats">${CATS.map(c=>`<a class="cat" href="#/products?cat=${c.id}">${ART['c-'+c.slug]?`<img src="${ART['c-'+c.slug]}" alt="" width="64" height="64">`:''}<span>${esc(c.name)}</span></a>`).join('')}</div>
   <h2>وصل حديثاً</h2><div class="grid">${PRODS.slice(0,8).map(card).join('')||'<p>لا توجد منتجات بعد.</p>'}</div>`;
  },
  products(q){
@@ -142,4 +145,12 @@ async function route(){
 window.addEventListener('hashchange',route);
 badge();
 load().then(route).catch(e=>{app.innerHTML='<p class="err">تعذر تحميل المتجر: '+esc(e.message)+'</p>'});
+})();
+
+/* scroll reveal */
+(function(){document.documentElement.classList.add('js');
+ if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.remove('js');return}
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -6% 0px',threshold:.08});
+ const scan=()=>document.querySelectorAll('#app h2,#app .card,#app .cat,#app .notice,#app .sum,#app details').forEach((el,i)=>{if(!el.dataset.rv){el.dataset.rv=1;el.classList.add('rv');el.style.transitionDelay=Math.min(i%4,3)*70+'ms';io.observe(el)}});
+ new MutationObserver(scan).observe(document.getElementById('app'),{childList:true,subtree:true});scan();
 })();
