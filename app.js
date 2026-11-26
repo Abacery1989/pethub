@@ -40,6 +40,7 @@ async function load(){
 const sampleNotice=()=>PRODS.some(p=>p.is_sample)?'<div class="notice">هذا متجر تجريبي: المنتجات والأسعار المعلّمة "منتج تجريبي" أمثلة فقط.</div>':'';
 
 function petHtml(n,w,h,eyes,kind){
+  setTimeout(eyeTracker,50);
   const cat=kind==='cat',R=cat?12.6:7.4;
   const g=eyes.map((e,k)=>`<g clip-path="url(#cl-${n}${k})"><circle cx="${e[0]}" cy="${e[1]}" r="${R+1}" fill="url(#ir-${n})"/><g class="pu" data-cx="${e[0]}" data-cy="${e[1]}" data-max="${cat?4.5:2.6}">${cat?`<ellipse cx="${e[0]}" cy="${e[1]}" rx="3.2" ry="9.6" fill="#0b0805"/>`:`<circle cx="${e[0]}" cy="${e[1]}" r="4.6" fill="#050302"/>`}<circle class="hl" cx="${e[0]-2.2}" cy="${e[1]-3.2}" r="${cat?2.1:1.7}" fill="#fff" opacity=".9"/></g></g>`).join('');
   const defs=eyes.map((e,k)=>`<clipPath id="cl-${n}${k}"><circle cx="${e[0]}" cy="${e[1]}" r="${R+1}"/></clipPath>`).join('')+`<radialGradient id="ir-${n}"><stop offset="0" stop-color="${cat?'#d7cf6a':'#6a3f24'}"/><stop offset=".75" stop-color="${cat?'#a39a3c':'#3d2315'}"/><stop offset="1" stop-color="${cat?'#6f6a2a':'#241209'}"/></radialGradient>`;
@@ -72,7 +73,7 @@ function eyeTracker(){
 }
 const pages={
  home(){
-  app.innerHTML=`<div class="hero"><div class="ht"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div><div class="stage"><div class="pet cat">${petHtml('cat',386,392,[[131.5,130],[213,130]],'cat')}</div><div class="pet dog">${petHtml('dog',360,380,[[146,82.5],[236,82.5]],'dog')}</div></div></div>${sampleNotice()}
+  app.innerHTML=`<div class="hero"><div class="ht"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div><div class="stage"><div class="pet pcat">${petHtml('cat',386,392,[[131.5,130],[213,130]],'cat')}</div><div class="pet pdog">${petHtml('dog',360,380,[[146,82.5],[236,82.5]],'dog')}</div></div></div>${sampleNotice()}
   <h2>التصنيفات</h2><div class="cats">${CATS.map(c=>`<a class="cat" href="#/products?cat=${c.id}">${ART['c-'+c.slug]?`<img src="${ART['c-'+c.slug]}" alt="" width="64" height="64">`:''}<span>${esc(c.name)}</span></a>`).join('')}</div>
   <h2>وصل حديثاً</h2><div class="grid">${PRODS.slice(0,8).map(card).join('')||'<p>لا توجد منتجات بعد.</p>'}</div>`;
  },
@@ -187,4 +188,3 @@ load().then(route).catch(e=>{app.innerHTML='<p class="err">تعذر تحميل �
  new MutationObserver(scan).observe(document.getElementById('app'),{childList:true,subtree:true});scan();
 })();
 
-new MutationObserver(()=>{if(document.querySelector('.stage .pu'))eyeTracker()}).observe(document.getElementById('app'),{childList:true,subtree:true});
