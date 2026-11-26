@@ -86,7 +86,7 @@ function eyeTracker(){
 }
 const pages={
  home(){
-  app.innerHTML=`<div class="hero"><div class="ht"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div><div class="stage"><div class="pet pcat">${petHtml('cat',386,392,[[131.5,130],[213,130]],'cat')}</div><div class="pet pdog">${petHtml('dog',360,380,[[146,82.5],[236,82.5]],'dog')}</div></div></div>${sampleNotice()}
+  app.innerHTML=`<div class="hero"><div class="ht"><h1>${esc(S.store_name)}</h1><p><b>${esc(S.tagline||'')}</b><br>أكل وألعاب ومستلزمات القطط والكلاب. ادفع عند الاستلام أو بتحويل بنكي.</p><a class="btn" href="#/products">تصفح المنتجات</a></div><div class="stage"><div class="pet pcat">${petHtml('cat',386,392,[[131.5,130],[213,130]],'cat')}</div><div class="pet pdog">${petHtml('dog',360,380,[[146,82.5],[236,82.5]],'dog')}</div></div></div><div class="perks"><span>🐾 كل اللي حيوانك محتاجه في مكان واحد</span><span>🚚 اطلب دلوقتي وادفع عند الاستلام</span><span>❤️ حيوانك يستاهل الأحسن</span></div>${sampleNotice()}
   <h2>التصنيفات</h2><div class="cats">${CATS.map(c=>`<a class="cat" href="#/products?cat=${c.id}">${ART['c-'+c.slug]?`<img src="${ART['c-'+c.slug]}" alt="" width="64" height="64">`:''}<span>${esc(c.name)}</span></a>`).join('')}</div>
   <h2>وصل حديثاً</h2><div class="grid">${PRODS.slice(0,8).map(card).join('')||'<p>لا توجد منتجات بعد.</p>'}</div>`;
  },
